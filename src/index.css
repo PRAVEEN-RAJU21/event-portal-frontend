@@ -1,0 +1,347 @@
+/* =========================================
+   ULTRA-PREMIUM LIVE VIDEO GLASSMORPHISM UI
+========================================= */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+
+/* --- 1. THE THEME ENGINE (LIGHT MODE DEFAULTS) --- */
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.25);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+  
+  --text-main: #ffffff;
+  --text-muted: #e2e8f0;
+  --accent-color: #3b82f6; 
+  --accent-glow: 0 0 15px rgba(59, 130, 246, 0.4);
+  --input-bg: rgba(255, 255, 255, 0.2);
+  
+  --success-color: #10b981;
+  --success-bg: rgba(16, 185, 129, 0.2);
+  --error-color: #ef4444;
+  --error-bg: rgba(239, 68, 68, 0.2);
+}
+
+/* --- 2. AUTO-SWITCH TO DARK MODE (SYSTEM BASED) --- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --glass-bg: rgba(15, 23, 42, 0.4);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --accent-color: #00f6ff; 
+    --accent-glow: 0 0 20px rgba(0, 246, 255, 0.4);
+    --input-bg: rgba(0, 0, 0, 0.3);
+    
+    --success-color: #00ffaa;
+    --success-bg: rgba(0, 255, 170, 0.15);
+    --error-color: #ff3366;
+    --error-bg: rgba(255, 51, 102, 0.15);
+  }
+}
+
+/* --- 3. GLOBAL & VIDEO BACKGROUND STYLES --- */
+* {
+  box-sizing: border-box;
+  font-family: 'Outfit', sans-serif;
+  margin: 0;
+  padding: 0;
+  transition: border-color 0.4s ease, box-shadow 0.4s ease, transform 0.3s ease;
+}
+
+body {
+  background-color: #000;
+  color: var(--text-main);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+.app-wrapper {
+  position: relative;
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+}
+
+.live-background {
+  position: fixed; /* Fixed so it doesn't scroll away with long lists */
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  transform: translateX(-50%) translateY(-50%);
+  z-index: 0;
+  object-fit: cover;
+  opacity: 0.65; /* Slightly lowered for better text readability */
+}
+
+.glass-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1100px; /* Slightly wider for the new grid */
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+/* --- 4. HEADER & TYPOGRAPHY --- */
+.header {
+  text-align: center;
+  margin-bottom: 50px;
+  animation: fadeInDown 0.8s ease forwards;
+}
+
+.header h1 {
+  font-size: 3.5rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: #ffffff;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), var(--accent-glow);
+}
+
+/* --- 5. CUSTOM TOAST NOTIFICATION (NEW) --- */
+.toast-container {
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid var(--accent-color);
+  color: #fff;
+  padding: 15px 30px;
+  border-radius: 15px;
+  box-shadow: var(--accent-glow), var(--glass-shadow);
+  z-index: 9999;
+  font-weight: 600;
+  animation: slideIn 0.5s ease forwards, fadeOut 0.5s ease 3.5s forwards;
+}
+
+/* --- 6. ADAPTIVE 3D GLASS CARDS & GRID --- */
+.layout-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 30px;
+  align-items: start;
+}
+
+/* This targets the wrapper inside TicketView to prevent overflow */
+.ticket-container > div:first-of-type {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  width: 100%;
+}
+
+.card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-top: 1px solid rgba(255, 255, 255, 0.4); 
+  border-left: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 20px;
+  padding: 35px;
+  box-shadow: var(--glass-shadow);
+  animation: fadeInUp 0.8s ease forwards;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  border-color: var(--accent-color);
+  box-shadow: var(--accent-glow), var(--glass-shadow);
+}
+
+.card h2, .card h3 {
+  color: #ffffff;
+  font-weight: 700;
+  border-bottom: 1px solid var(--glass-border);
+  padding-bottom: 15px;
+  margin-bottom: 25px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+/* --- 7. ADAPTIVE STATUS INDICATORS --- */
+.available {
+  display: inline-flex;
+  align-items: center;
+  color: var(--success-color);
+  font-weight: 600;
+  background: var(--success-bg);
+  padding: 8px 15px;
+  border-radius: 30px;
+  border: 1px solid rgba(13, 253, 173, 0.3);
+  backdrop-filter: blur(5px);
+}
+
+.available::before {
+  content: '';
+  display: block;
+  width: 8px;
+  height: 8px;
+  background-color: var(--success-color);
+  border-radius: 50%;
+  margin-right: 10px;
+  box-shadow: 0 0 10px var(--success-color);
+  animation: pulseStatus 1.5s infinite;
+}
+
+.sold-out {
+  display: inline-flex;
+  align-items: center;
+  color: var(--error-color);
+  font-weight: 600;
+  background: var(--error-bg);
+  padding: 8px 15px;
+  border-radius: 30px;
+  backdrop-filter: blur(5px);
+}
+
+/* --- 8. ADAPTIVE INPUT FIELDS --- */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  color: var(--text-main);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 8px;
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+}
+
+.form-group input {
+  background: var(--input-bg);
+  border: 1px solid var(--glass-border);
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 12px 15px;
+  width: 100%;
+  backdrop-filter: blur(10px);
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  background: rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2), var(--accent-glow);
+}
+
+/* --- 9. BUTTONS --- */
+button {
+  width: 100%;
+  padding: 15px;
+  background: var(--accent-color);
+  color: #000; /* Dark text on bright glow buttons is more readable */
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+button:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: var(--accent-glow);
+  filter: brightness(1.1);
+}
+
+button:disabled {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  border: 1px solid var(--glass-border);
+}
+
+/* --- 10. ANIMATIONS --- */
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; visibility: hidden; }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseStatus {
+  0% { box-shadow: 0 0 0 0 rgba(13, 253, 173, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(13, 253, 173, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(13, 253, 173, 0); }
+}
+
+/* =========================================
+   NEW: RESPONSIVE QR CODE & MOBILE FIXES
+========================================= */
+
+.qr-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+}
+
+.qr-section img {
+    max-width: 100%; 
+    height: auto;
+    width: 250px; 
+    border-radius: 12px;
+    box-shadow: 0 0 15px var(--accent-glow);
+    background: #fff; 
+    padding: 10px;
+}
+
+/* Specific Media Query for Mobile Alignment */
+@media (max-width: 600px) {
+    .qr-section img {
+        width: 180px !important; /* Smaller fixed size for mobile */
+    }
+
+    .ticket-container {
+        padding: 20px !important;
+    }
+
+    /* Force details and QR to stack vertically and center */
+    .ticket-container > div:first-of-type {
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+    }
+
+    .header h1 {
+        font-size: 2.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .qr-section img {
+        max-width: 160px !important;
+    }
+}
