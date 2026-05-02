@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
+// --- CLOUD CONFIGURATION ---
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
 const AdminDashboard = ({ onBack }) => {
     const [bookings, setBookings] = useState([]);
     const [stats, setStats] = useState({ totalRevenue: 0, totalStudents: 0 });
@@ -9,9 +12,10 @@ const AdminDashboard = ({ onBack }) => {
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
+                // Using dynamic API_BASE_URL
                 const [bookingsResponse, statsResponse] = await Promise.all([
-                    fetch('http://localhost:8080/api/admin/bookings'),
-                    fetch('http://localhost:8080/api/admin/stats')
+                    fetch(`${API_BASE_URL}/api/admin/bookings`),
+                    fetch(`${API_BASE_URL}/api/admin/stats`)
                 ]);
 
                 if (bookingsResponse.ok && statsResponse.ok) {
@@ -33,7 +37,8 @@ const AdminDashboard = ({ onBack }) => {
 
     const handleExportCSV = async () => {
         try {
-            const response = await fetch('http://localhost:8080/api/admin/export');
+            // Using dynamic API_BASE_URL
+            const response = await fetch(`${API_BASE_URL}/api/admin/export`);
             if (response.ok) {
                 const blob = await response.blob();
                 const url = window.URL.createObjectURL(blob);
@@ -59,7 +64,6 @@ const AdminDashboard = ({ onBack }) => {
 
     return (
         <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto', animation: 'fadeInUp 0.8s ease' }}>
-            
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
                 <button onClick={onBack} style={{ width: 'auto', padding: '10px 20px', background: 'rgba(255,255,255,0.1)' }}>
                     ← EXIT DASHBOARD
@@ -85,7 +89,6 @@ const AdminDashboard = ({ onBack }) => {
             </div>
 
             <div className="card" style={{ width: '100%', padding: '30px' }}>
-                
                 <div className="form-group" style={{ marginBottom: '25px', maxWidth: '400px' }}>
                     <input 
                         type="text" 

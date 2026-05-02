@@ -4,6 +4,10 @@ import AdminDashboard from './components/AdminDashboard';
 import AdminLogin from './components/AdminLogin';
 import './index.css';
 
+// --- NEW: CLOUD CONFIGURATION ---
+// This line tells React to use your Render URL if it's available, otherwise fallback to local for testing.
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
 function App() {
     // --- 1. STATE MANAGEMENT ---
     const [allEvents, setAllEvents] = useState([]);
@@ -13,13 +17,14 @@ function App() {
     const [isAdminAuth, setIsAdminAuth] = useState(false);
     const [error, setError] = useState(null);
 
-    // --- 2. DATA FETCHING (Sync with Aiven Cloud) ---
+    // --- 2. DATA FETCHING (Sync with Cloud/Local) ---
     useEffect(() => {
         let isMounted = true; 
 
         const fetchData = async () => {
             try {
-                const response = await fetch('http://localhost:8080/api/events');
+                // Updated to use the dynamic API_BASE_URL
+                const response = await fetch(`${API_BASE_URL}/api/events`);
                 if (response.ok) {
                     const data = await response.json();
                     if (isMounted) {
@@ -31,7 +36,7 @@ function App() {
                 }
             } catch (err) {
                 console.error("Database connection failed:", err);
-                if (isMounted) setError("Connection Refused: Ensure Spring Boot is running on port 8080.");
+                if (isMounted) setError("Connection Error: Check if the Backend is Live.");
             }
         };
 
@@ -41,7 +46,8 @@ function App() {
 
     const refreshData = async () => {
         try {
-            const response = await fetch('http://localhost:8080/api/events');
+            // Updated to use the dynamic API_BASE_URL
+            const response = await fetch(`${API_BASE_URL}/api/events`);
             const data = await response.json();
             setAllEvents(data);
         } catch (e) {
@@ -159,13 +165,12 @@ function App() {
                                         }
                                         {allEvents.filter(evt => evt.category?.toLowerCase() === selectedCategory.toLowerCase()).length === 0 && (
                                             <div className="card" style={{ gridColumn: '1/-1', textAlign: 'center' }}>
-                                                <p>No events found in this category. Check your Aiven Database.</p>
+                                                <p>No events found in this category. Check your Cloud Database.</p>
                                             </div>
                                         )}
                                     </div>
                                 </div>
                             ) : (
-                                /* STEP 2: REGISTRATION VIEW (Duplicate instructions box removed) */
                                 <div style={{ animation: 'fadeInUp 0.5s ease' }}>
                                     <button 
                                         onClick={() => setEvent(null)} 

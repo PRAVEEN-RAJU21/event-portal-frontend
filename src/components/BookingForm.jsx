@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import TicketView from './TicketView'; 
 import PaymentModal from './PaymentModal';
 
+// --- CLOUD CONFIGURATION ---
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
 const BookingForm = ({ event, onBookingSuccess }) => {
     // --- STATE MANAGEMENT ---
     const [members, setMembers] = useState(['']); 
@@ -13,7 +16,7 @@ const BookingForm = ({ event, onBookingSuccess }) => {
     const [showPayment, setShowPayment] = useState(false); 
     const [confirmedBooking, setConfirmedBooking] = useState(null);
 
-    // --- 🚀 EXTRAORDINARY LOGIC BRIDGE ---
+    // --- LOGIC BRIDGE ---
     const isGroup = event.isGroupEvent || event.groupEvent;
     const maxSize = event.maxGroupSize || event.max_group_size || 1;
 
@@ -58,15 +61,13 @@ const BookingForm = ({ event, onBookingSuccess }) => {
 
     const totalToPay = (event.ticketPrice * members.length).toFixed(2);
 
-    // --- 🛡️ UPDATED BACKEND INTEGRATION WITH EMAIL GUARD ---
+    // --- BACKEND INTEGRATION ---
     const handleFinalBooking = async () => {
-        // 1. Phone Validation
         if (phone.length !== 10) {
             triggerToast("Please enter a valid 10-digit phone number.");
             return;
         }
 
-        // 🚀 2. Email Validation Guard
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             triggerToast("Please enter a valid official email address.");
@@ -92,7 +93,8 @@ const BookingForm = ({ event, onBookingSuccess }) => {
                 status: bookingStatus 
             };
 
-            const response = await fetch("http://localhost:8080/api/book", {
+            // Using dynamic API_BASE_URL
+            const response = await fetch(`${API_BASE_URL}/api/book`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(bookingPayload)
