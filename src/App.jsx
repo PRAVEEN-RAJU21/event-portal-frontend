@@ -1,61 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'; 
 import BookingForm from './components/BookingForm'; 
 import AdminDashboard from './components/AdminDashboard'; 
 import AdminLogin from './components/AdminLogin';
+import VerifyTicket from './components/VerifyTicket'; 
 import './index.css';
 
-// --- NEW: CLOUD CONFIGURATION ---
-// This line tells React to use your Render URL if it's available, otherwise fallback to local for testing.
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
-function App() {
-    // --- 1. STATE MANAGEMENT ---
-    const [allEvents, setAllEvents] = useState([]);
+// --- WRAPPER COMPONENT TO KEEP YOUR EXISTING LOGIC ---
+const MainPortal = ({ allEvents, refreshData, error, showAdmin, setShowAdmin, isAdminAuth, setIsAdminAuth }) => {
     const [event, setEvent] = useState(null);
     const [selectedCategory, setSelectedCategory] = useState(null);
-    const [showAdmin, setShowAdmin] = useState(false); 
-    const [isAdminAuth, setIsAdminAuth] = useState(false);
-    const [error, setError] = useState(null);
 
-    // --- 2. DATA FETCHING (Sync with Cloud/Local) ---
-    useEffect(() => {
-        let isMounted = true; 
-
-        const fetchData = async () => {
-            try {
-                // Updated to use the dynamic API_BASE_URL
-                const response = await fetch(`${API_BASE_URL}/api/events`);
-                if (response.ok) {
-                    const data = await response.json();
-                    if (isMounted) {
-                        setAllEvents(data);
-                        setError(null);
-                    }
-                } else {
-                    if (isMounted) setError("Failed to load events from server.");
-                }
-            } catch (err) {
-                console.error("Database connection failed:", err);
-                if (isMounted) setError("Connection Error: Check if the Backend is Live.");
-            }
-        };
-
-        fetchData();
-        return () => { isMounted = false; }; 
-    }, []);
-
-    const refreshData = async () => {
-        try {
-            // Updated to use the dynamic API_BASE_URL
-            const response = await fetch(`${API_BASE_URL}/api/events`);
-            const data = await response.json();
-            setAllEvents(data);
-        } catch (e) {
-            console.error("Refresh failed:", e);
-        }
-    };
-
-    // --- 3. HUB NAVIGATION ---
     const handleCategorySelect = (cat) => {
         setSelectedCategory(cat);
         setEvent(null); 
@@ -66,7 +23,6 @@ function App() {
         return selectedCategory === 'technical' ? "/videos/tech.mp4" : "/videos/sports.mp4";
     };
 
-    // --- 4. ADMIN PORTAL VIEW ---
     if (showAdmin) {
         return (
             <div className="app-wrapper">
@@ -90,7 +46,6 @@ function App() {
         );
     }
 
-    // --- 5. MAIN STUDENT PORTAL VIEW ---
     return (
         <div className="app-wrapper">
             <video autoPlay loop muted playsInline className="live-background" key={selectedCategory || 'home'}>
@@ -99,7 +54,6 @@ function App() {
 
             <div className="glass-container">
                 {!selectedCategory ? (
-                    /* WELCOME SCREEN */
                     <div className="welcome-screen" style={{ textAlign: 'center' }}>
                         <h1 style={{ fontSize: '3.5rem', fontWeight: '800' }}>WELCOME TO THE</h1>
                         <h2 style={{ color: '#3b82f6', fontSize: '2.2rem', marginBottom: '20px' }}>CAMPUS EVENT PORTAL</h2>
@@ -131,7 +85,6 @@ function App() {
                         </div>
                     </div>
                 ) : (
-                    /* HUB SCREEN (LIST OR FORM) */
                     <>
                         <header style={{ textAlign: 'center', marginBottom: '30px' }}>
                             <button onClick={() => { setSelectedCategory(null); setEvent(null); }} style={{ width: 'auto', padding: '10px 25px' }}>
@@ -178,7 +131,6 @@ function App() {
                                     >
                                         ← BACK TO {selectedCategory.toUpperCase()} LIST
                                     </button>
-                                    
                                     <BookingForm event={event} onBookingSuccess={refreshData} />
                                 </div>
                             )}
@@ -187,6 +139,70 @@ function App() {
                 )}
             </div>
         </div>
+    );
+};
+
+function App() {
+    const [allEvents, setAllEvents] = useState([]);
+    const [showAdmin, setShowAdmin] = useState(false); 
+    const [isAdminAuth, setIsAdminAuth] = useState(false);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        let isMounted = true; 
+        const fetchData = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/events`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (isMounted) {
+                        setAllEvents(data);
+                        setError(null);
+                    }
+                } else {
+                    if (isMounted) setError("Failed to load events.");
+                }
+            } catch (err) {
+                // RECTIFIED: Logging the error to satisfy 'no-unused-vars'
+                console.error("Fetch Error Details:", err);
+                if (isMounted) setError("Connection Error: Backend Offline.");
+            }
+        };
+        fetchData();
+        return () => { isMounted = false; }; 
+    }, []);
+
+    const refreshData = async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/events`);
+            const data = await response.json();
+            setAllEvents(data);
+        } catch (e) {
+            // RECTIFIED: Using 'e' to satisfy ESLint
+            console.error("Refresh failed:", e);
+        }
+    };
+
+    return (
+        <Router>
+            <Routes>
+                {/* Main Portal Route */}
+                <Route path="/" element={
+                    <MainPortal 
+                        allEvents={allEvents} 
+                        refreshData={refreshData} 
+                        error={error}
+                        showAdmin={showAdmin}
+                        setShowAdmin={setShowAdmin}
+                        isAdminAuth={isAdminAuth}
+                        setIsAdminAuth={setIsAdminAuth}
+                    />
+                } />
+
+                {/* Verification Route for QR Scans */}
+                <Route path="/verify/:id" element={<VerifyTicket />} />
+            </Routes>
+        </Router>
     );
 }
 

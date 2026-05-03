@@ -12,11 +12,12 @@ const TicketView = ({ booking, event, onBack }) => {
     const hubLabel = isTechnical ? "TECHNICAL HUB" : "NON-TECHNICAL HUB";
     const accentColor = isTechnical ? "#00f6ff" : "#ffcc00";
 
-    // --- RECOGNIZED PDF FIX ---
+    // RECTIFIED: This link connects the physical ticket to your live Verification UI
+    const verificationUrl = `https://event-portal-frontend-six.vercel.app/verify/${booking.id}`;
+
     const downloadPDF = () => {
         const doc = new jsPDF();
         
-        // Ensure text is black for printing
         doc.setTextColor(0, 0, 0);
 
         // 1. Header
@@ -29,7 +30,7 @@ const TicketView = ({ booking, event, onBack }) => {
         doc.setLineWidth(0.5);
         doc.line(20, 35, 190, 35);
 
-        // 3. Ticket Data (Using explicit strings to prevent blank pages)
+        // 3. Ticket Data
         doc.setFontSize(12);
         doc.text(`TICKET NO: ${String(ticketNo)}`, 20, 50);
         doc.text(`EVENT: ${String(event.eventName || 'N/A')}`, 20, 60);
@@ -58,7 +59,7 @@ const TicketView = ({ booking, event, onBack }) => {
     };
 
     return (
-        <div className="card ticket-container" style={{ padding: '30px', textAlign: 'left' }}>
+        <div className="card ticket-container" style={{ padding: '30px', textAlign: 'left', animation: 'fadeIn 0.8s ease-out' }}>
             <h3 style={{ color: '#00ff00' }}>🎉 Booking Confirmed!</h3>
             <hr style={{ opacity: 0.2, margin: '20px 0' }} />
             
@@ -72,14 +73,17 @@ const TicketView = ({ booking, event, onBack }) => {
 
                 <div className="qr-section">
                     <img 
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${ticketNo}`} 
-                        alt="QR Code" 
+                        // RECTIFIED: The QR code now points to the live verification link
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(verificationUrl)}`} 
+                        alt="Verification QR Code" 
+                        style={{ border: `3px solid ${accentColor}`, borderRadius: '10px', padding: '5px', background: '#fff' }}
                     />
+                    <p style={{ fontSize: '10px', color: '#666', marginTop: '5px', textAlign: 'center' }}>Scan to Verify</p>
                 </div>
             </div>
 
             <div style={{ display: 'flex', gap: '10px', marginTop: '25px' }}>
-                <button onClick={downloadPDF} style={{ flex: 1, background: '#00ff00', color: '#000' }}>
+                <button onClick={downloadPDF} style={{ flex: 1, background: '#00ff00', color: '#000', fontWeight: 'bold' }}>
                     ⬇️ DOWNLOAD PDF
                 </button>
                 <button onClick={onBack} style={{ flex: 1, background: 'transparent', color: '#fff', border: '1px solid #fff' }}>
