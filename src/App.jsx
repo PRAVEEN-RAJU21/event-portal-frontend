@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import BookingForm from './components/BookingForm'; 
 import AdminDashboard from './components/AdminDashboard'; 
 import AdminLogin from './components/AdminLogin';
-import VerifyTicket from './components/VerifyTicket'; 
+import VerifyTicket from './components/VerifyTicket';
 import './index.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
