@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 
+// RECTIFIED: Use the environment variable for production, fallback to localhost for development
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
 const AdminLogin = ({ onLoginSuccess, onCancel }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -12,7 +15,8 @@ const AdminLogin = ({ onLoginSuccess, onCancel }) => {
         setError('');
 
         try {
-            const response = await fetch('http://localhost:8080/api/admin/login', {
+            // RECTIFIED: Replaced hardcoded localhost with dynamic API_BASE_URL
+            const response = await fetch(`${API_BASE_URL}/api/admin/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
@@ -24,7 +28,6 @@ const AdminLogin = ({ onLoginSuccess, onCancel }) => {
                 setError('ACCESS DENIED: Invalid Username or Password.');
             }
         } catch (err) {
-            // FIXED: We are now actively logging the 'err' variable so ESLint is happy!
             console.error("Login attempt failed:", err); 
             setError('Server connection failed.');
         } finally {
